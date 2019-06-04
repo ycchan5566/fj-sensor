@@ -1,0 +1,247 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="./css/style.css">
+<link rel="stylesheet" type="text/css" href="./css/tip.css">
+<style type="text/css">
+#container{
+	width:380px;
+}
+
+#table{
+	color:#373737;
+	margin: 10px auto 0 auto;
+}
+
+#table > tbody > tr > td{
+	padding:5px 10px;
+}
+
+#table .group{
+	font-weight:bolder;
+	color:#2a2a2a;
+	padding-top:20px;
+}
+
+#table .header{
+	vertical-align:middle;
+	text-align:left;
+	width:80px;
+	white-space:nowrap;
+}
+
+#table .content{
+	vertical-align:middle;
+	width:220px;
+}
+
+</style>
+<script src="./js/jquery.min.js"></script>
+<script language="JavaScript">
+window.$ = window.jQuery = require('./js/jquery.min.js');
+const electron = require('electron');
+const remote = electron.remote;
+const app = remote.app
+const ipcRenderer = electron.ipcRenderer;
+//console.log(ipcRenderer.sendSync('synchronous-message', 'ping')); // prints "pong"
+</script>
+<script src="./js/jquery.tip.js"></script>
+<script src="./js/jquery.livequery.min.js"></script>
+<script src="./js/jquery.bind-first.min.js"></script>
+<script src="./js/town_info.js"></script>
+<script src="./js/inputchecker.js"></script>
+<script language="JavaScript">
+function onload(){
+	// Bind element event
+	$("#top-bar .icons").hover(function(){
+		$(this).addClass("hover");
+	}, function(){
+		$(this).removeClass("hover");
+	});
+
+	$("#top-bar .icons.close, #cancel-button").bind("click", function(){
+		remote.getCurrentWindow().close();
+	});
+
+	$("#portAuto").bind("click", function(){
+		if($(this).is(":checked")){
+			$("#portNumber").attr("disabled", true);
+		}
+		else{
+			$("#portNumber").attr("disabled", false);
+		}
+	});
+
+	$("#save-button").bind("click", function(){
+		// Update settings to global
+		settings.townID = parseInt($("#town option:selected").attr("townID"), 10);
+		settings.alertIntensity = parseInt($("#alert-intensity").val(), 10);
+		settings.autorun = $("#autorunEnable").is(":checked");
+		settings.showPWave = $("#showPWaveEnable").is(":checked");
+		settings.applySiteEffect = $("#applySiteEffectEnable").is(":checked");
+
+		if($("#portAuto").is(":checked")){
+			settings.portAuto = true;
+		}
+		else{
+			settings.portAuto = false;
+			settings.portNumber = parseInt($("#portNumber").val(), 10);
+		}
+
+		// Save settings in file
+		var fs = require('fs');
+		var path = require('path');
+		var settingsFile = path.join(app.getPath('userData'), 'settings.json');
+		fs.writeFileSync(settingsFile, JSON.stringify(settings)); 
+
+		// Check the connection setting is change
+		var reconnect = true;
+		if(portAuto == settings.portAuto){
+			if(portAuto == true || portNumber == settings.portNumber){
+				reconnect = false;
+			}
+		}
+
+		// Notify main process and close setting window
+		ipcRenderer.send('settings-changed', reconnect);
+		remote.getCurrentWindow().close();
+	});
+
+	// Bind ipc event
+	ipcRenderer.on('focus', function(event, arg){
+		$("body").removeClass("focus blur").addClass("focus");
+	});
+
+	ipcRenderer.on('blur', function(event, arg){
+		$("body").removeClass("focus blur").addClass("blur");
+	});
+
+	// Reference settings to global settings in main process
+	settings = remote.getGlobal('settings');
+
+	for(var city in taiwan){
+		$("#city").append(
+			$("<option></option>").val(city).text(city)
+		);
+	}
+
+	$("#city").bind("change", function(){
+		$("#town").empty();
+
+		var city = $(this).val();
+		for(var town in taiwan[city]){
+			$("#town").append(
+				$("<option></option>").attr("townID", taiwan[city][town][0]).val(town).text(town)
+			);
+		}
+	});
+
+	for(var city in taiwan){
+		for(var town in taiwan[city]){
+			if(taiwan[city][town][0] == settings.townID){
+				$("#city").val(city).triggerHandler("change");
+				$("#town").val(town);
+				break;
+			}
+		}
+	}
+
+	$("#alert-intensity").val(settings.alertIntensity);
+	$("#autorunEnable").attr("checked", settings.autorun == true);
+	$("#showPWaveEnable").attr("checked", settings.showPWave == true);
+	$("#applySiteEffectEnable").attr("checked", settings.applySiteEffect == true);
+
+	// Keep previous setting
+	portAuto = settings.portAuto;
+	portNumber = settings.portNumber;
+
+	if(settings.portAuto == true){
+		$("#portNumber").val(remote.getGlobal('peerInstance').getUdpSocket().address().port);
+		$("#portAuto").attr("checked", true).triggerHandler("click");
+	}
+	else{
+		$("#portNumber").val(settings.portNumber);
+		$("#portAuto").attr("checked", false).triggerHandler("click");
+	}
+}
+</script>
+</head>
+<body class="focus" onload="onload();">
+<div id="window">
+	<div id="wrapper">
+		<div id="top-bar">
+			<div class="center">
+				<div class="title">設定</div>
+			</div>
+			<div class="right">
+				<span class="icons close"></span>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		<div id="container">
+			<table id="table">
+				<tr>
+					<td colSpan="2" class="group">基本設定</td>
+				</tr>
+				<tr>
+					<td class="header">所在地</td>
+					<td class="content">
+						<select id="city"></select>
+						<select id="town"></select>
+					</td>
+				</tr>
+				<tr>
+					<td class="header">通知震度</td>
+					<td class="content">
+						<select id="alert-intensity">
+							<option value="0">0級以上</option>
+							<option value="1">1級以上</option>
+							<option value="2">2級以上</option>
+							<option value="3">3級以上</option>
+							<option value="4">4級以上</option>
+							<option value="5">5級以上</option>
+							<option value="6">6級以上</option>
+							<option value="7">7級以上</option>
+						</select>
+					</td>
+				</tr>
+
+				<tr>
+					<td colSpan="2" class="group">連線設定</td>
+				</tr>
+				<tr>
+					<td class="header">UDP連接埠</td>
+					<td class="content">
+						<input type="text" tip_position="top" range="1~65535" limit="int" style="vertical-align:middle;width:70px;text-align:center;" id="portNumber">&nbsp;&nbsp;&nbsp;<input type="checkbox" style="vertical-align:middle;" id="portAuto"><label for="portAuto" style="vertical-align:middle;">自動設定</label>
+					</td>
+				</tr>
+
+				<tr>
+					<td colSpan="2" class="group">進階設定</td>
+				</tr>
+				<tr>
+					<td colSpan="2" class="content">
+						<input type="checkbox" style="vertical-align:middle;" value="1" id="autorunEnable"><label for="autorunEnable" style="vertical-align:middle;">開機自動啟動</label>
+					</td>
+				</tr>
+				<tr>
+					<td colSpan="2" class="content">
+						<input type="checkbox" style="vertical-align:middle;" value="1" id="showPWaveEnable"><label for="showPWaveEnable" style="vertical-align:middle;">顯示P波</label>
+					</td>
+				</tr>
+				<tr>
+					<td colSpan="2" class="content">
+						<input type="checkbox" style="vertical-align:middle;" value="1" id="applySiteEffectEnable"><label for="applySiteEffectEnable" style="vertical-align:middle;">考慮場址效應來預估震度</label>
+					</td>
+				</tr>
+			</table>
+
+			<div style="text-align:center;margin:20px 0;">
+				<button id="save-button">儲存</button>&nbsp;&nbsp;<button id="cancel-button">取消</button>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

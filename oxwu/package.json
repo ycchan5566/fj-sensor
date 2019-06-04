@@ -1,0 +1,19 @@
+{
+  "name": "OXWU",
+  "productName": "地牛Wake Up!",
+  "version": "1.3.4",
+  "description": "台灣地震速報",
+  "main": "main.js",
+  "author": "Wei-Lun Jhu",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "package": "electron-packager . %npm_package_name% --platform=win32 --arch=ia32 --electron-version=1.4.16 --out=../dist/ --overwrite=true --icon=icon.ico --asar=true --appname=\"%npm_package_productName%\" --app-version=%npm_package_version% --app-copyright=\"Copyright 2017 By Wei-Lun Jhu\" --win32metadata.CompanyName=\"%npm_package_productName%\" --win32metadata.FileDescription=\"%npm_package_description%\" --win32metadata.OriginalFilename=\"%npm_package_name%.exe\" --win32metadata.InternalName=\"%npm_package_productName%\" --win32metadata.ProductName=\"%npm_package_productName%\""
+  },
+  "dependencies": {
+    "auto-launch": "~5.0.1",
+    "electron-squirrel-startup": "~1.0.0",
+    "sntp": "~2.0.2"
+  },
+  "devDependencies": {}
+}
