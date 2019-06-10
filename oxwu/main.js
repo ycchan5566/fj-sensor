@@ -102,10 +102,6 @@ if (handleSquirrelEvent()) {
 // Single instance
 const shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory){
     if (mainWindow) {
-        // if (mainWindow.isMinimized()){
-        //     mainWindow.restore()
-        // }
-        //mainWindow.minimize();// Fix Windows 10 Creators Update bug, the window not show
         mainWindow.show();
         mainWindow.focus();
     }
@@ -115,55 +111,8 @@ if (shouldQuit) {
     app.quit();
 }
 
-/*
-function versionCompare(ver1, ver2, op){
-    var splitArray1 = ver1.split("."), splitArray2 = ver2.split(".");
-    var maxLength = Math.max(splitArray1.length, splitArray2.length);
-    var compare = 0;
-
-    for(var i = 0; i < maxLength; i++){
-        splitArray1[i] = parseInt(splitArray1[i], 10);
-        splitArray2[i] = parseInt(splitArray2[i], 10);
-
-        if(isNaN(splitArray1[i])){splitArray1[i] = 0;}
-        if(isNaN(splitArray2[i])){splitArray2[i] = 0;}
-
-        if(splitArray1[i] < splitArray2[i]){
-            compare = -1;
-            break;
-        }
-        else if(splitArray1[i] > splitArray2[i]){
-            compare = 1;
-            break;
-        }
-    }
-
-    switch (op) {
-        case '>':
-            return (compare > 0);
-        case '>=':
-            return (compare >= 0);
-        case '<':
-            return (compare < 0);
-        case '<=':
-            return (compare <= 0);
-        case '==':
-            return (compare === 0);
-        case '!=':
-            return (compare !== 0);
-        default:
-            return null;
-    }
-}
-
-// Fix Windows 10 Creators Update bug, the window not show
-if(versionCompare(os.release(), "10.0.15000", ">=")){
-    app.disableHardwareAcceleration();
-}
-*/
-
 var disableHardwareAcceleration = true;
-for(var key in process.argv){
+for(let key in process.argv){
     if(process.argv[key] == "--enableHardwareAcceleration"){
         disableHardwareAcceleration = false;
         break;
@@ -215,8 +164,6 @@ function createWindow () {
                 return;
             }
         }
-
-        //mainWindow.minimize();// Fix Windows 10 Creators Update bug, the window not show
         mainWindow.show();
         /*
         setTimeout(function(){
@@ -257,7 +204,6 @@ function createSettingsWindow() {
             icon: iconICOPath,
             thickFrame: false,
             show: false
-            //backgroundColor: '#F8F8F8'
         })
 
         settingsWindow.loadURL('file://' + __dirname + '/app/settings.htm');
@@ -267,13 +213,7 @@ function createSettingsWindow() {
         }
 
         settingsWindow.once('ready-to-show', function () {
-            //settingsWindow.minimize();// Fix Windows 10 Creators Update bug, the window not show
             settingsWindow.show();
-            /*
-            setTimeout(function(){
-                settingsWindow.show();
-            }, 0);
-            */
         });
     }
 }
@@ -292,22 +232,17 @@ function createUpdateWindow() {
             icon: iconICOPath,
             thickFrame: false,
             show: false
-            //backgroundColor: '#F8F8F8'
         })
 
         updateWindow.loadURL('file://' + __dirname + '/app/update.htm');
 
         updateWindow.once('ready-to-show', function () {
-            //updateWindow.minimize();// Fix Windows 10 Creators Update bug, the window not show
             updateWindow.show();
         });
     }
 }
 
 app.on('ready', function(){
-//    if (process.argv[1] == '--squirrel-firstrun') {
-//    }
-
     autoUpdater.on('update-downloaded', function() {
         mainWindow.webContents.send("update-downloaded");
 
@@ -393,7 +328,7 @@ var setAutoLaunch = function(){
 };
 
 var devMode = false;
-for(var key in process.argv){
+for(let key in process.argv){
     if(process.argv[key] == "--dev"){
         devMode = true;
         break;
