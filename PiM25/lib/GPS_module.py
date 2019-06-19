@@ -8,7 +8,6 @@ def read_last_gps(info):
     return info
 
 def data_read(lines, temp_info):
-    
     try:
         gprmc = [rmc for rmc in lines if "$GPRMC" in rmc]
         gpgga = [gga for gga in lines if "$GPGGA" in gga]
@@ -34,17 +33,17 @@ def data_read(lines, temp_info):
 
                 print "latitude : %f(%s), longitude : %f(%s), speed : %f" %  (latitude , dir_lat, longitude, dir_lon, speed)
 
-                if speed <= 10:     
+                if speed <= 10:
                     ## moving slow ##
                     ## collect gps location ##
                     temp_info["gps_num"] = satellite
                     temp_info["gps_lat"] = latitude
                     temp_info["gps_lon"] = longitude
-                    
+
                     ## store GPS information ##
-                    lastest_gps = open("/home/pi/Local/gps_info.txt","w") 
+                    lastest_gps = open("/home/pi/Local/gps_info.txt","w")
                     lastest_gps.write(str(satellite) + "," + str(latitude) + "," + dir_lat + "," + str(longitude) + "," + dir_lon)
-                    lastest_gps.close() 
+                    lastest_gps.close()
                 else:
                     ## moving fast ##
                     print("out of speed")

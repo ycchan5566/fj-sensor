@@ -5,11 +5,6 @@ import commands
 G5T_GPIO = 23
 GPS_GPIO = 24
 DEVICE_IP = commands.getoutput("hostname -I")
-data_path = "/home/pi/Data/"
-
-# Restful_API
-env_file = open("/home/pi/Local/env.txt").readlines()
-Restful_URL = env_file[0].split(",")[1].replace("\n", "")
 
 # MAC address
 mac = open('/sys/class/net/eth0/address').readline().upper().strip()

@@ -8,14 +8,13 @@ from datetime import datetime
 import lib.GPS_module as GPS_m
 import lib.G5T_module as G5T_m
 import lib.PiM25_config as Conf
-import lib.upload_data as upload
 # import lib.screen as lcd
 
 if __name__ == '__main__':
 
     ## initial PIGPIO library ##
     (s, process) = commands.getstatusoutput('sudo pidof pigpiod')
-    if s:  
+    if s:
         print("pigpiod was not running")
         commands.getstatusoutput('sudo pigpiod')
         time.sleep(0.5)
@@ -27,7 +26,7 @@ if __name__ == '__main__':
             pi = pigpio.pi()
         except Exception as e:
             print "initial pi fail, the error message is: ", e
- 
+
     ## collect all sensor data ##
     weather_data = Conf.device_info.copy()
 
@@ -44,7 +43,7 @@ if __name__ == '__main__':
     try:
         pi.bb_serial_read_close(Conf.G5T_GPIO)
     except:
-        pass
+        print('Catch exception: pi.bb_serial_read_close(Conf.G5T_GPIO) at PiM25.py')
 
     try:
         pi.bb_serial_read_open(Conf.G5T_GPIO, 9600)
@@ -73,18 +72,19 @@ if __name__ == '__main__':
     try:
         pi.bb_serial_read_close(G5T_GPIO)
         print("G5T close success")
-    except Exception as e: 
-        pass
+    except Exception as e:
+        print(e)
+
     #############################
-   
+
     # print("weather_data: ", weather_data)
 
     ########## Read GPS ##########
     try:
         pi.bb_serial_read_close(Conf.GPS_GPIO)
     except Exception as e:
-        pass
-    
+        print(e)
+
     try:
         pi.bb_serial_read_open(Conf.GPS_GPIO, 9600)
         time.sleep(1)
@@ -97,38 +97,34 @@ if __name__ == '__main__':
 
         else:
             print("read nothing")
-            weather_data = GPS_m.read_last_gps(weather_data)
+            # weather_data = GPS_m.read_last_gps(weather_data)
             LOCATION_STATUS = -1
 
     except Exception as e:
         print(e)
         LOCATION_STATUS = -1
-    
+
     try:
         pi.bb_serial_read_close(GPS_GPIO)
         print("GPS close success")
     except Exception as e:
         pass
-    
-    ###############################
-    
-    # print("weather_data: ", weather_data)
-    
+
     ###############################
 
-    weather_data = upload.organize(weather_data, PM_STATUS, LOCATION_STATUS)
-    
+    # print("weather_data: ", weather_data)
+
     ########## Store msg ##########
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S").split(" ")
-   
+
     info_key = weather_data.keys()
     store_data = [weather_data]
-    if os.path.exists(Conf.data_path + "record.csv") is False:
-        with open(Conf.data_path + "record.csv", "a") as output_file:
+    if os.path.exists("record.csv") is False:
+        with open("record.csv", "a") as output_file:
             dict_writer = csv.DictWriter(output_file, info_key)
             dict_writer.writeheader()
-         
-    with open(Conf.data_path + "record.csv", "a") as output_file:
+
+    with open("record.csv", "a") as output_file:
         try:
             dict_writer = csv.DictWriter(output_file, info_key)
             dict_writer.writerows(store_data)
@@ -137,7 +133,7 @@ if __name__ == '__main__':
             print("Error: writing to SD")
 
     ##############################
-    
-    # lcd.display(weather_data) 
+
+    # lcd.display(weather_data)
     pi.stop()
     print("End")
