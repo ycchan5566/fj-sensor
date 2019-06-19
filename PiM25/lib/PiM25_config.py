@@ -3,12 +3,11 @@ import os
 import commands
 
 G5T_GPIO = 23
-GPS_GPIO = 24
 DEVICE_IP = commands.getoutput("hostname -I")
 
 # MAC address
 mac = open('/sys/class/net/eth0/address').readline().upper().strip()
-DEVICE_ID = mac.replace(':','') 
+DEVICE_ID = mac.replace(':','')
 
 # Tick time
 with open('/proc/uptime', 'r') as f:

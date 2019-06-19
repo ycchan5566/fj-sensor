@@ -10,12 +10,12 @@ def data_read(dstr, temp_info):
 
     if(index == -1 or len(dstr) < 64):
         ## sense failed ##
-        return temp_info, -1 
+        return temp_info, -1
 
     else:
         ## pm2.5 data that we need ##
         data_slice = dstr[index : index + data_len]
-            
+
         ## cf_pm1 ##
         temp_info["CFPM1.0"] = (int(data_slice[8] + data_slice[9] + data_slice[10] + data_slice[11], 16))
 

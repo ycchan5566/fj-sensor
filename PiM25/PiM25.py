@@ -5,7 +5,6 @@ import os
 import csv
 from datetime import datetime
 
-import lib.GPS_module as GPS_m
 import lib.G5T_module as G5T_m
 import lib.PiM25_config as Conf
 # import lib.screen as lcd
@@ -13,7 +12,7 @@ import lib.PiM25_config as Conf
 if __name__ == '__main__':
 
     ## initial PIGPIO library ##
-    (s, process) = commands.getstatusoutput('sudo pidof pigpiod')
+    (s, process) = commands.getstatusoutput('pidof pigpiod')
     if s:
         print("pigpiod was not running")
         commands.getstatusoutput('sudo pigpiod')
@@ -21,7 +20,6 @@ if __name__ == '__main__':
         pi = pigpio.pi()
 
     if not s:
-        print "pigpiod is running, process ID is: ", process
         try:
             pi = pigpio.pi()
         except Exception as e:
@@ -70,49 +68,15 @@ if __name__ == '__main__':
         PM_STATUS = -1
 
     try:
-        pi.bb_serial_read_close(G5T_GPIO)
+        pi.bb_serial_read_close(Conf.G5T_GPIO)
         print("G5T close success")
     except Exception as e:
         print(e)
 
     #############################
 
-    # print("weather_data: ", weather_data)
-
-    ########## Read GPS ##########
-    try:
-        pi.bb_serial_read_close(Conf.GPS_GPIO)
-    except Exception as e:
-        print(e)
-
-    try:
-        pi.bb_serial_read_open(Conf.GPS_GPIO, 9600)
-        time.sleep(1)
-        (s, raw_data) = pi.bb_serial_read(Conf.GPS_GPIO)
-        if s:
-            print("read GPS")
-            lines = ''.join(chr(x) for x in raw_data).splitlines()
-            weather_data = GPS_m.data_read(lines, weather_data)
-            LOCATION_STATUS = 1
-
-        else:
-            print("read nothing")
-            # weather_data = GPS_m.read_last_gps(weather_data)
-            LOCATION_STATUS = -1
-
-    except Exception as e:
-        print(e)
-        LOCATION_STATUS = -1
-
-    try:
-        pi.bb_serial_read_close(GPS_GPIO)
-        print("GPS close success")
-    except Exception as e:
-        pass
-
-    ###############################
-
-    # print("weather_data: ", weather_data)
+    print("weather_data: ", weather_data)
+    exit(0)
 
     ########## Store msg ##########
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S").split(" ")
