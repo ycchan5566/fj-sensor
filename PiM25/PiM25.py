@@ -3,7 +3,6 @@ import pigpio
 import pprint
 import subprocess
 import signal
-import sys
 import os
 import csv
 from datetime import datetime
@@ -18,6 +17,8 @@ def sigint_handle(sig, frame):
         print("G5T close success")
     except Exception as e:
         print(e)
+    finally:
+        return 0
 
 def run():
     signal.signal(signal.SIGINT, sigint_handle)
@@ -32,7 +33,7 @@ def run():
         pi = pigpio.pi()
     except Exception as e:
         print("initial pi fail, the error message is: ", e)
-        sys.exit(1)
+        return 1
 
     ## collect all sensor data ##
     pms_data = Conf.device_info.copy()
@@ -73,7 +74,7 @@ def run():
 
     # Don't need to store msg if failed
     if EXIT_STATUS == 1:
-        sys.exit(EXIT_STATUS)
+        return EXIT_STATUS
 
     ########## Store msg ##########
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S").split(" ")
@@ -93,7 +94,7 @@ def run():
             print("Error: writing to SD")
 
     pi.stop()
-    sys.exit(EXIT_STATUS)
+    return EXIT_STATUS
 
 
 if __name__ == '__main__':
