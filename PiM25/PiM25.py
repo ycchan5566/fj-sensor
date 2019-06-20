@@ -78,17 +78,16 @@ def run():
     ########## Store msg ##########
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S").split(" ")
 
-    info_key = pms_data.keys()
-    store_data = [pms_data]
+    info_key = ['device', 'date', 'time', 'CFPM1.0', 'CFPM2.5', 'CFPM10', 'PM1', 'PM25', 'PM10', 'humid', 'temp']
     if os.path.exists("record.csv") is False:
-        with open("record.csv", "a") as output_file:
+        with open("record.csv", "w") as output_file:
             dict_writer = csv.DictWriter(output_file, info_key)
             dict_writer.writeheader()
 
     with open("record.csv", "a") as output_file:
         try:
             dict_writer = csv.DictWriter(output_file, info_key)
-            dict_writer.writerows(store_data)
+            dict_writer.writerow(pms_data)
         except Exception as e:
             print(e)
             print("Error: writing to SD")

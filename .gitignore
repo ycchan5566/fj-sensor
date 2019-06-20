@@ -2,3 +2,5 @@ node_modules/
 .vscode/
 log.txt
 out.txt
+*.csv
+*.pyc
