@@ -3,8 +3,8 @@ import requests
 import RPi.GPIO as gpio
 import time
 import datetime
-import tweetupdate as tweet
-import PttAuto as ptt
+from sns import tweetupdate as tweet
+from sns import PttAuto as ptt
 from bs4 import BeautifulSoup as bs
 
 #pin for sw sensor
@@ -26,7 +26,7 @@ ACCESS_TOKEN = ''
 ACCESS_TOKEN_SECRET = ''
 CONSUMER_KEY = ''
 CONSUMER_SECRET = ''
-test_acc = tweet.TweetUpdate(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
+twitter_account = tweet.TweetUpdate(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
 
 print('fj-sensor is ready')
 
@@ -51,14 +51,14 @@ try:
             ptt.disconnect()
             now = str(datetime.datetime.now())
             now = now[:-7]
-            print ('start to tweet')
-            test_acc.tweet_my_msg(now+'  Earthquake')
-            print ('tweet updates')
+            print('start to tweet')
+            twitter_account.tweet_my_msg(now + '  Earthquake')
+            print('tweet updates')
             time.sleep(10)
             p.stop()
 
 except KeyboardInterrupt:
-    print "Exception: KeyboardInterrupt"
+    print("Exception: KeyboardInterrupt")
 
 finally:
     gpio.cleanup() 
