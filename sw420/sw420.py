@@ -1,6 +1,10 @@
+# -*- coding: UTF-8 -*-
 import requests
 import RPi.GPIO as gpio
 import time
+import datetime
+import tweetupdate as tweet
+import PttAuto as ptt
 from bs4 import BeautifulSoup as bs
 
 #pin for sw sensor
@@ -13,6 +17,16 @@ gpio.setmode(gpio.BOARD)
 gpio.setup(pin, gpio.IN)
 gpio.setup(pin_alarm, gpio.OUT)
 p = gpio.PWM(pin_alarm, 659)
+
+host = 'ptt.cc'
+user = 'Your ptt account'
+password = 'Your ptt password'
+
+ACCESS_TOKEN = ''
+ACCESS_TOKEN_SECRET = ''
+CONSUMER_KEY = ''
+CONSUMER_SECRET = ''
+test_acc = tweet.TweetUpdate(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
 
 print('fj-sensor is ready')
 
@@ -32,7 +46,15 @@ try:
 
             ## alarm starts
             p.start(50)
-            time.sleep(5)
+            ptt.login(host, user, password)
+            ptt.post('test', u'地震', u'塊陶阿')
+            ptt.disconnect()
+            now = str(datetime.datetime.now())
+            now = now[:-7]
+            print ('start to tweet')
+            test_acc.tweet_my_msg(now+'  Earthquake')
+            print ('tweet updates')
+            time.sleep(10)
             p.stop()
 
 except KeyboardInterrupt:

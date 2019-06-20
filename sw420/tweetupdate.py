@@ -1,6 +1,4 @@
-from urllib import error
-import urllib.parse
-import urllib.request
+import urllib
 import traceback
 from collections import OrderedDict
 from pprint import pprint
@@ -276,12 +274,4 @@ class TweetUpdate(object):
             print()
         except:
             traceback.print_exc()
-
-if __name__ == '__main__':
-    ACCESS_TOKEN = ''
-    ACCESS_TOKEN_SECRET = ''
-    CONSUMER_KEY = ''
-    CONSUMER_SECRET = ''
-    test_acc = TweetUpdate(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
-    test_acc.tweet_my_msg('Hello world')
 
