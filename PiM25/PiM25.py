@@ -8,11 +8,12 @@ import os
 import csv
 from datetime import datetime
 
-import lib.G5T_module as G5T_m
-import lib.PiM25_config as Conf
+import PiM25.lib.G5T_module as G5T_m
+import PiM25.lib.PiM25_config as Conf
 
 def sigint_handle(sig, frame):
     try:
+        pi = pigpio.pi()
         pi.bb_serial_read_close(Conf.G5T_GPIO)
         print("G5T close success")
     except Exception as e:
@@ -25,12 +26,13 @@ def run():
         pidof_out = subprocess.check_output(['pidof', 'pigpiod'])
     except subprocess.CalledProcessError as e:
         print("pigpiod was not running")
-        subprocess.run(['sudo', 'pigpiod'], check=True)
+        subprocess.check_output(['sudo', 'pigpiod'])
         time.sleep(0.5)
     try:
         pi = pigpio.pi()
     except Exception as e:
         print("initial pi fail, the error message is: ", e)
+        sys.exit(1)
 
     ## collect all sensor data ##
     pms_data = Conf.device_info.copy()
@@ -46,7 +48,7 @@ def run():
         G5T_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S").split(" ")
         if s:
             data_hex = G5T_m.bytes2hex(raw_data)
-            pms_data, check  = G5T_m.data_read(data_hex, pms_data)
+            pms_data, check = G5T_m.data_read(data_hex, pms_data)
             if check is 1:
                 ## collect pm2.5 data ##
                 EXIT_STATUS = 0
@@ -93,6 +95,7 @@ def run():
 
     pi.stop()
     sys.exit(EXIT_STATUS)
+
 
 if __name__ == '__main__':
     run()
