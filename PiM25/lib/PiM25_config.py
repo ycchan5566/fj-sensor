@@ -1,9 +1,9 @@
 import re
 import os
-import commands
+import subprocess
 
 G5T_GPIO = 23
-DEVICE_IP = commands.getoutput("hostname -I")
+DEVICE_IP = subprocess.run(['hostname', '-I'], check=True)
 
 # MAC address
 mac = open('/sys/class/net/eth0/address').readline().upper().strip()
@@ -14,7 +14,7 @@ with open('/proc/uptime', 'r') as f:
     try:
         tick = float(f.readline().split()[0])
     except:
-        print "Error: reading /proc/uptime"
+        print("Error: reading /proc/uptime")
 
 
 # Device information

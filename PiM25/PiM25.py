@@ -1,6 +1,7 @@
 import time
 import pigpio
-import commands
+import pprint
+import subprocess
 import os
 import csv
 from datetime import datetime
@@ -12,18 +13,16 @@ import lib.PiM25_config as Conf
 if __name__ == '__main__':
 
     ## initial PIGPIO library ##
-    (s, process) = commands.getstatusoutput('pidof pigpiod')
-    if s:
+    try:
+        pidof_out = subprocess.check_output(['pidof', 'pigpiod'])
+    except subprocess.CalledProcessError as e:
         print("pigpiod was not running")
-        commands.getstatusoutput('sudo pigpiod')
+        subprocess.run(['sudo', 'pigpiod'], check=True)
         time.sleep(0.5)
+    try:
         pi = pigpio.pi()
-
-    if not s:
-        try:
-            pi = pigpio.pi()
-        except Exception as e:
-            print "initial pi fail, the error message is: ", e
+    except Exception as e:
+        print("initial pi fail, the error message is: ", e)
 
     ## collect all sensor data ##
     weather_data = Conf.device_info.copy()
@@ -59,8 +58,10 @@ if __name__ == '__main__':
                 ## record sensor time ##
                 weather_data["date"] = (str(G5T_time[0]))
                 weather_data["time"] = (str(G5T_time[1]))
+                pprint.pprint(weather_data)
         else:
             print("read nothing")
+            pprint.pprint(raw_data)
             PM_STATUS = -1
 
     except Exception as e:
@@ -75,8 +76,7 @@ if __name__ == '__main__':
 
     #############################
 
-    print("weather_data: ", weather_data)
-    exit(0)
+    # print("weather_data: ", weather_data)
 
     ########## Store msg ##########
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S").split(" ")
