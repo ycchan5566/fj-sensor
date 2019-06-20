@@ -34,7 +34,7 @@ def cal_pm25():
             elif last3_avg >= MODERATE:
                 STATUS = 'MODERATE'
             if STATUS != LOW:
-                twitter_account.tweet_my_msg('The PM2.5 status is' + STATUS)
+                twitter_account.tweet_my_msg(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + 'The PM2.5 status is *' + STATUS + '*')
 
 
 schedule.every().hour.do(cal_pm25)
