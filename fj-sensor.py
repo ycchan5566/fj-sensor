@@ -1,13 +1,18 @@
 import csv
 import schedule
-import subprocess
 import time
 import os
 
+from sns import tweetupdate
 from PiM25 import PiM25
 
+ACCESS_TOKEN = ''
+ACCESS_TOKEN_SECRET = ''
+CONSUMER_KEY = ''
+CONSUMER_SECRET = ''
+twitter_account = tweetupdate.TweetUpdate(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
+
 def cal_pm25():
-    PiM25.run()
     LOW = 0
     MODERATE = 36
     HIGH = 54
@@ -17,10 +22,23 @@ def cal_pm25():
     else:
         with open('record.csv', 'r') as read_file:
             rd = [x for x in csv.reader(read_file)]
+            if len(rd) - 1 < 3:
+                print('not enough record')
+                return 1
             last3_avg = (int(rd[-1][7]) + int(rd[-2][7]) + int(rd[-2][7])) / 3
-            print(last3_avg)
+            STATUS = 'LOW'
+            if last3_avg >= PURPLE:
+                STATUS = 'PURPLE'
+            elif last3_avg >= HIGH:
+                STATUS = 'HIGH'
+            elif last3_avg >= MODERATE:
+                STATUS = 'MODERATE'
+            if STATUS != LOW:
+                twitter_account.tweet_my_msg('The PM2.5 status is' + STATUS)
 
-schedule.every(1).minutes.do(cal_pm25)
+
+schedule.every().hour.do(cal_pm25)
+schedule.every(10).minutes.do(PiM25.run)
 
 while True:
     schedule.run_pending()
