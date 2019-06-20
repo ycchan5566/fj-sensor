@@ -26,19 +26,19 @@ def data_read(dstr, temp_info):
         temp_info["CFPM10"] = (int(data_slice[16] + data_slice[17] + data_slice[18] + data_slice[19], 16))
 
         ## pm1 ##
-        temp_info["s_d2"] = (int(data_slice[20] + data_slice[21] + data_slice[22] + data_slice[23], 16))
+        temp_info["PM1"] = (int(data_slice[20] + data_slice[21] + data_slice[22] + data_slice[23], 16))
 
         ## pm2.5 ##
-        temp_info["s_d0"] = (int(data_slice[24] + data_slice[25] + data_slice[26] + data_slice[27], 16))
+        temp_info["PM25"] = (int(data_slice[24] + data_slice[25] + data_slice[26] + data_slice[27], 16))
 
         ## pm10 ##
-        temp_info["s_d1"] = (int(data_slice[28] + data_slice[29] + data_slice[30] + data_slice[31], 16))
+        temp_info["PM10"] = (int(data_slice[28] + data_slice[29] + data_slice[30] + data_slice[31], 16))
 
         ## temperature ##
-        temp_info["s_t0"] = (int(data_slice[48] + data_slice[49] + data_slice[50] + data_slice[51], 16) / 10)
+        temp_info["temp"] = (int(data_slice[48] + data_slice[49] + data_slice[50] + data_slice[51], 16) / 10)
 
         ## humidity ##
-        temp_info["s_h0"] = (int(data_slice[52] + data_slice[53] + data_slice[54] + data_slice[55], 16) / 10)
+        temp_info["humid"] = (int(data_slice[52] + data_slice[53] + data_slice[54] + data_slice[55], 16) / 10)
 
     return temp_info, 1
 
